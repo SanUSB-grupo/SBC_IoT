@@ -1,0 +1,15 @@
+Receber informações de LDR no PIC
+	https://youtu.be/oGv5jftjiUA
+	
+Comunicando microcontrolador-smartphone via Bluetooth:
+	https://www.youtube.com/watch?v=-Miyo-G48yE&feature=youtu.be
+	
+Modem Bluetooth e Modem Wifi na mesma porta serial
+	https://youtu.be/4G_y49VonsQ
+	
+Comunicação entre ThingSpeal e PIC
+	https://youtu.be/UGqA9BL6W5U
+	
+Tomada de ação mediante percepção de mudança no ambiente
+	https://youtu.be/bxBcXOE0fGs
+	

@@ -12,7 +12,6 @@
 #define MULT_CONN 1
 
 
-
 #define length_of(x)  (sizeof(x)/sizeof((x)[0]))
 
 #define ESP8266_STATION 0x01
@@ -55,6 +54,7 @@ unsigned const char responses[NUM_RESPONSES] = {ESP8266_OK, ESP8266_READY,
 
 void interrupt interrupcao();                               //To handle interruptions
 bit esp8266_isStarted(void);                                //Sends AT and waits for OK.
+bit esp_connectToAP(char* ssid, char* password);
 int esp8266_lookFor(unsigned char *string);                 //After we've received the response from ESP, we can look for some usefel info.
 bit esp8266_send(unsigned char* data, int channel);         //To send a given data
 void reset_flags(void);                                     //Before sending any command it's wise to reset all flags.
@@ -69,7 +69,7 @@ void thingSpeak_clear_channel();                            //Supposed to clean 
 void count_half_sec();                                      //Uses timer0 to count precisely
 void count_full_sec();
 void count_x_sec(int x);
-void esp_reset();                                           //Resets ESP8266
+void esp_reset(boolean talkBack);
 float get_value();
 void check_alive();
 
@@ -78,15 +78,22 @@ void main(){
     clock_int_4MHz();
     habilita_interrupcao(recep_serial);
     habilita_canal_AD(AN0); //To enable pin A0 to read analogical data.
-    taxa_serial(9600);
+    taxa_serial(19200);
 
-    esp_reset();    //Just to come clear.
+    esp_reset(false);    //Just to come clear.
+    while(!esp_waitFor((char*)"OK"));
+    count_x_sec(5);
+
+//    esp_connectToAP((char*)"ifce-alunos", (char*)"ifce4lun0s");
+//    esp_connectToAP((char*)"Visitantes", (char*)"1411FIECv");
+    esp_connectToAP((char*)"GVT-C4EE", (char*)"CP1141RM81R");
+
     int time_to_wait;
-    bool found = false;
-    bool sent, received;
+    boolean found = false;
+    boolean sent, received;
 
-    bool keep_it_on = false;
-    bool has_changed = true;
+    boolean keep_it_on = false;
+    boolean has_changed = true;
     int previous = 1;
 
     while(1){
@@ -96,8 +103,8 @@ void main(){
             Reset();
         }
 
-        time_to_wait = 30;  //60 secs.
-        
+        time_to_wait = 15;  //60 secs.
+
         resultado = le_AD10bits(0);
         resultado = 5*(float)resultado/1023;
 
@@ -136,17 +143,17 @@ void main(){
                         sent = true;
                         esp8266_close();
                     }else{  //Unable to send
-                        esp_reset();
+                        esp_reset(false);
                         test_failure();
                         time_to_wait = 5;
                     }
                 }else{   //Couldn't link to the website.
-                    esp_reset();
+                    esp_reset(false);
                     test_failure();
                     time_to_wait = 5;
                 }
             }else{  //Couldn't connect MUX=1
-                esp_reset();
+                esp_reset(false);
                 test_failure();
                 time_to_wait = 5;
             }
@@ -199,21 +206,21 @@ void main(){
                             }
                         esp8266_close();
                     }else{  //Unable to send
-                        esp_reset();
+                        esp_reset(false);
                         test_failure();
                         time_to_wait = 5;
                     }
                 }else{   //Couldn't link to the website.
-                    esp_reset();
+                    esp_reset(false);
                     test_failure();
                     time_to_wait = 5;
                 }
             }else{  //Couldn't connect MUX=1
-                esp_reset();
+                esp_reset(false);
                 test_failure();
                 time_to_wait = 5;
             }
-            
+
         }while(!received);
 
         count_x_sec(time_to_wait);    //Sends and receives data every one minute or less in case it fails to send
@@ -414,10 +421,11 @@ bit esp_waitFor(unsigned char* string){
     return (timerIsOver < max_time)?true:false;
 }
 
-void esp_reset(){
+void esp_reset(boolean talkBack){
     printf(RST);
     count_x_sec(5);
-    printf(ATE0);   //To disable ESP to show commands we type, we can only see the reply.
+    if(talkBack)
+        printf(ATE0);   //To disable ESP to show commands we type, we can only see the reply.
 }
 
 float get_value(){
@@ -443,4 +451,14 @@ float get_value(){
     float num = atof((char*)numStr);
 
     return num;
+}
+
+bit esp_connectToAP(char* ssid, char* password){
+
+    while(!esp_waitFor((char*)"OK")){
+        printf("AT+CWJAP=\"%s\",\"%s\"", ssid, password);
+        count_full_sec();
+    }
+
+    return 1;
 }

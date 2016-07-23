@@ -1,0 +1,94 @@
+﻿Journal connecting ESP8622
+**************************************************************************************************************************************************
+ESP - Terminal
+Verificar as conexões.
+	Os pinos RST e CH_PD tem de estar em alto. No meu caso, coloquei in 2k2ohm direto para 3.3v
+	
+Instalar e conectar com Putty
+	Conexão na COM3 a 9600
+
+Melhor instalar CoolTerm
+	
+Digitar os comados AT
+	Para testar, digite AT, depois enter, depois ctrl+j para ver a resposta.
+	
+Caso o passo anterior não funcione, tem que aterrar manualmente o pino RST por alguns segundos.
+
+Sempre que mudar o CWMODE, tem que resetar o módulo: AT+RST.
+
+Para verificar as redes disponíveis, tive que mudar para AT+CWMODE=3
+
+Para verificar redes disponíveis: AT+CWLAP
+
+Para conectar: AT+CWJAP="NOME_REDE","SENHA_REDE"
+
+Para checar a conexão: AT+CWJAP? - Deve mostrar a rede que está conectada.
+
+Para mandar dados pro site:
+	AT+CIPMUX=1
+	Para habilitar múltiplas conexões. Só precisa configurar uma vez. Usado para usar o ESP como cliente
+
+	AT+CIPSTART=4,"TCP","api.thingspeak.com",80
+	Enter, depois ctrl+j para ver a resposta.
+	
+	AT+CIPSEND=4,44
+	Enter, depois ctrl+j para ver a resposta. Tamanho da msg + \r\n
+	
+	GET /update?key=7V1BKM3ZABHFIVLI&field1=25
+	Enter, depois ctrl+j para ver a resposta.
+	
+	AT+CIPCLOSE
+	Enter, depois ctrl+j para ver a resposta.
+***************************************************************************************************************************************************s
+___________________________________________________________________________________________________________________________________________________
+***************************************************************************************************************************************************	
+ESP - PIC
+Para alimentar o modem, usa-se a saída do adaptador USB-Serial.
+
+Conexão:
+	É possível ver os comandos e respostas que estão sendo enviados para o modem wifi.
+	Deve-se conectar o Rx do PIC ao TX do Adaptador USB-Serial.
+	Deve-se conectar o Tx do PIC ao RX do modem wifi.
+	Deve-se conectar o Tx do modem wifi ao Rx do Adaptador USB-Serial.
+
+Comandos:
+	Lembrar de sempre colocar \r\n no final de cada comando.
+
+Programa:
+	Verificar programa testeESP8266.c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
